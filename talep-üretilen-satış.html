@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ürün Bazlı Talep - Üretim - Satış (Filtreli)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f4f4f4;
+    }
+    h2 {
+      text-align: center;
+    }
+    #controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input {
+      padding: 8px;
+      width: 250px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    #chartContainer {
+      width: 95%;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <h2>Ürün Bazlı Talep - Üretim - Satış Karşılaştırması</h2>
+
+  <div id="controls">
+    <label>Ürün Ara: </label>
+    <input type="text" id="searchInput" placeholder="örn: BTR-P-51.2V">
+  </div>
+
+  <div id="chartContainer">
+    <canvas id="productionChart"></canvas>
+  </div>
+
+  <script>
+    const labels = [
+      'BTR-FL-51.2V-420AH','BTR-FL-51.2V-608AH','BTR-FL-83.2V-304AH',
+      'BTR-FL-83.2V-420AH','BTR-FL-83.2V-608AH','BTR-GLF-51.2V-105AH',
+      'BTR-GLF-51.2V-210AH','BTR-MLX-64V-30AH','BTR-MLX-76.8V-100AH',
+      'BTR-MLX-76.8V-30AH','BTR-MLX-76.8V-42AH','BTR-MLX-76.8V-50AH',
+      'BTR-MRN-12.8V-100AH','BTR-MRN-12.8V-200AH','BTR-MRN-12.8V-280AH',
+      'BTR-MRN-25.6V-100AH','BTR-P-12.8V-102AH','BTR-P-12.8V-204AH',
+      'BTR-P-25.6V-102AH','BTR-P-25.6V-204AH','BTR-P-51.2V-102AH',
+      'BTR-P-51.2V-280AH','BTR-TP-25.6V-104AH','BTR-TP-25.6V-208AH',
+      'BTR-FL-51.2V-304AH','BTR-RT-51.2V-420AH','BTR-RT-51.2V-608AH',
+      'BTR-MLX-76.8V-42AH'
+    ];
+
+    const demand = [
+      60,20,20,60,20,45,269,20,20,
+      20,20,20,360,180,90,450,15,20,
+      50,50,1247,300,40,100,20,0,0,20
+    ];
+    const production = [
+      115,32,2,2,16,43,231,0,0,
+      0,0,0,159,80,38,180,30,89,
+      178,224,3421,2219,0,0,20,47,1,0
+    ];
+    const sales = [
+      29,10,2,2,10,1,16,0,0,
+      0,0,0,128,72,37,173,43,47,
+      109,240,3496,1375,22,45,4,45,1,0
+    ];
+
+    const ctx = document.getElementById('productionChart').getContext('2d');
+
+    let chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'Toplam Talep', data: demand, backgroundColor: 'rgba(255, 99, 132, 0.7)' },
+          { label: 'Toplam Üretim', data: production, backgroundColor: 'rgba(54, 162, 235, 0.7)' },
+          { label: 'Toplam Satış', data: sales, backgroundColor: 'rgba(75, 192, 192, 0.7)' }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Talep - Üretim - Satış Miktarları (Ürün Bazında)'
+          },
+          legend: { position: 'bottom' }
+        },
+        scales: {
+          x: { ticks: { maxRotation: 90, minRotation: 60, font: { size: 10 } } },
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    // 🔍 Filtreleme Fonksiyonu
+    document.getElementById('searchInput').addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+      const filteredLabels = [];
+      const filteredDemand = [];
+      const filteredProduction = [];
+      const filteredSales = [];
+
+      labels.forEach((label, index) => {
+        if (label.toLowerCase().includes(searchTerm)) {
+          filteredLabels.push(label);
+          filteredDemand.push(demand[index]);
+          filteredProduction.push(production[index]);
+          filteredSales.push(sales[index]);
+        }
+      });
+
+      chart.data.labels = filteredLabels;
+      chart.data.datasets[0].data = filteredDemand;
+      chart.data.datasets[1].data = filteredProduction;
+      chart.data.datasets[2].data = filteredSales;
+      chart.update();
+    });
+  </script>
+</body>
+</html>
